@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ÁguaConsciente — Painel de consumo de água (arquivo único)</title>
+  <style>
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+}
+
+html.font-lg {
+  font-size: 112.5%;
+}
+
+html.font-xl {
+  font-size: 125%;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #16262d;
+  background: #f4f9fb;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, p {
+  margin: 0 0 8px 0;
+}
+
+h1 {
+  font-size: 1.75rem;
+}
+
+h2 {
+  font-size: 1.375rem;
+}
+
+h3 {
+  font-size: 1.125rem;
+}
+
+a {
+  color: #0277bd;
+}
+
+img, svg {
+  max-width: 100%;
+  display: block;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: #014f77;
+  color: #ffffff;
+  padding: 8px 16px;
+  z-index: 100;
+  border-radius: 0 0 8px 0;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #014f77;
+  outline-offset: 2px;
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (max-width: 460px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.app-header {
+  background: #014f77;
+  color: #ffffff;
+  padding: 16px 0;
+}
+
+.app-header__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.app-header__brand .icon {
+  width: 28px;
+  height: 28px;
+}
+
+.app-nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.app-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: background 0.2s ease;
+}
+
+.app-nav a:hover, .app-nav a:focus-visible {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.app-nav a[aria-current="page"] {
+  background: #ffffff;
+  color: #014f77;
+  font-weight: 600;
+}
+
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.month-selector label {
+  font-size: 0.875rem;
+  margin-right: 8px;
+}
+
+.month-selector select {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: none;
+}
+
+.font-size-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.font-size-control button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.font-size-control button:hover, .font-size-control button:focus-visible {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.font-size-control button[aria-pressed="true"] {
+  background: #ffffff;
+  color: #014f77;
+}
+
+.app-main {
+  padding: 32px 0 48px;
+}
+
+.page-title {
+  margin-bottom: 4px;
+}
+
+.page-subtitle {
+  color: #4c626b;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(1, 60, 90, 0.08);
+  padding: 24px;
+  border: 1px solid #d7e6ec;
+}
+
+.card + .card {
+  margin-top: 24px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 460px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  text-align: left;
+}
+
+.stat-card .stat-card__label {
+  font-size: 0.875rem;
+  color: #4c626b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-card .stat-card__value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #014f77;
+  margin: 4px 0;
+}
+
+.stat-card .stat-card__hint {
+  font-size: 0.875rem;
+  color: #4c626b;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.status-badge .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-badge.status-normal {
+  background: #e6f4ea;
+  color: #2e7d32;
+}
+
+.status-badge.status-normal .dot {
+  background: #2e7d32;
+}
+
+.status-badge.status-atencao {
+  background: #fdf3d9;
+  color: #b8860b;
+}
+
+.status-badge.status-atencao .dot {
+  background: #b8860b;
+}
+
+.status-badge.status-alto {
+  background: #fbe4e4;
+  color: #c62828;
+}
+
+.status-badge.status-alto .dot {
+  background: #c62828;
+}
+
+.analogy-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #e1f0fa;
+  border-radius: 14px;
+  padding: 16px 24px;
+  margin-top: 16px;
+}
+
+.analogy-box .icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  color: #014f77;
+}
+
+.chart-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.chart-container svg {
+  width: 100%;
+  height: auto;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: #4c626b;
+}
+
+.chart-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chart-legend .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.usage-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.usage-item {
+  margin-bottom: 16px;
+}
+
+.usage-item__head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+}
+
+.usage-item__track {
+  background: #f4f9fb;
+  border: 1px solid #d7e6ec;
+  border-radius: 999px;
+  height: 14px;
+  overflow: hidden;
+}
+
+.usage-item__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #0277bd;
+}
+
+.tip-box {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #e6f4ea;
+  border-left: 4px solid #2e7d32;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.tip-box.tip-alerta {
+  background: #fbe4e4;
+  border-left-color: #c62828;
+}
+
+.tip-box.tip-atencao {
+  background: #fdf3d9;
+  border-left-color: #b8860b;
+}
+
+.tip-box .icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.alert-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.alert-card .icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.icon-inline {
+  width: 1.1em;
+  height: 1.1em;
+  display: inline-block;
+  vertical-align: -0.15em;
+  margin-right: 4px;
+  color: #0277bd;
+}
+
+.app-footer {
+  text-align: center;
+  color: #4c626b;
+  font-size: 0.875rem;
+  padding: 24px 0 48px;
+}
+
+.dashboard-highlight {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.historico-summary {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.historico-summary .summary-item {
+  font-size: 0.875rem;
+  color: #4c626b;
+}
+
+.historico-summary .summary-item strong {
+  display: block;
+  font-size: 1.375rem;
+  color: #014f77;
+}
+
+.decomposicao-note {
+  font-size: 0.875rem;
+  color: #4c626b;
+  margin-top: 16px;
+}
+
+.alertas-empty {
+  text-align: center;
+  color: #4c626b;
+  padding: 32px 0;
+}
+
+/* ============================================================
+   Ajustes específicos da versão SPA (arquivo único)
+   As telas viram abas (role="tablist") em vez de páginas separadas.
+   ============================================================ */
+.app-nav button {
+  font-family: inherit;
+  font-size: 0.875rem;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.app-nav button:hover,
+.app-nav button:focus-visible {
+  background: rgba(255, 255, 255, 0.15);
+}
+.app-nav button[aria-selected="true"] {
+  background: #ffffff;
+  color: #014f77;
+  font-weight: 600;
+}
+.app-nav button[aria-selected="true"]:hover {
+  background: #ffffff;
+}
+section[role="tabpanel"][hidden] {
+  display: none;
+}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+
+  <header class="app-header">
+    <div class="container app-header__top">
+      <span class="app-header__brand">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 8 4 12.5 4 16a8 8 0 0016 0c0-3.5-4-8-8-14z"/></svg>
+        </span>
+        ÁguaConsciente
+      </span>
+      <nav class="app-nav" role="tablist" aria-label="Navegação principal">
+        <button type="button" role="tab" id="tab-dashboard" aria-selected="true" aria-controls="painel-dashboard" tabindex="0">Painel do mês</button>
+        <button type="button" role="tab" id="tab-historico" aria-selected="false" aria-controls="painel-historico" tabindex="-1">Histórico</button>
+        <button type="button" role="tab" id="tab-decomposicao" aria-selected="false" aria-controls="painel-decomposicao" tabindex="-1">Decomposição de uso</button>
+        <button type="button" role="tab" id="tab-alertas" aria-selected="false" aria-controls="painel-alertas" tabindex="-1">Alertas e dicas</button>
+      </nav>
+    </div>
+    <div class="container app-toolbar">
+      <div class="month-selector">
+        <label for="seletor-mes">Mês de referência</label>
+        <select id="seletor-mes"></select>
+      </div>
+      <div class="font-size-control">
+        <button id="botao-fonte" type="button" aria-pressed="false">Tamanho do texto: A</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main container" id="conteudo-principal">
+
+    <!-- ===================== PAINEL DO MÊS ===================== -->
+    <section id="painel-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" tabindex="0">
+      <h1 class="page-title">Painel do mês — <span id="dash-mes">carregando…</span></h1>
+      <p class="page-subtitle">Resumo simples do seu consumo de água neste mês.</p>
+
+      <section class="card-grid" aria-label="Indicadores do mês">
+        <div class="card stat-card">
+          <div class="stat-card__label">Consumo</div>
+          <div class="stat-card__value" id="dash-m3">–</div>
+          <div class="stat-card__hint" id="dash-variacao">–</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-card__label">Valor estimado da conta</div>
+          <div class="stat-card__value" id="dash-reais">–</div>
+          <div class="stat-card__hint">Baseado na tarifa média da concessionária</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-card__label">Situação do mês</div>
+          <div class="stat-card__value" id="dash-status">–</div>
+          <button type="button" class="stat-card__hint" id="dash-link-alertas" style="background:none;border:none;padding:0;text-decoration:underline;cursor:pointer;color:inherit;" onclick="document.getElementById('tab-alertas').click()">Ver detalhes do alerta →</button>
+        </div>
+      </section>
+
+      <div class="card analogy-box">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 3a1 1 0 000 2h1v1.1A6 6 0 003 12h1.8a1 1 0 010 2H3a1 1 0 000 2h1.09A6.99 6.99 0 0011 21.9V22a1 1 0 002 0v-.09A7 7 0 0019.9 16H21a1 1 0 000-2h-1.8a1 1 0 010-2H21a6 6 0 00-5-5.9V6h1a1 1 0 000-2H7zm5 5a4 4 0 014 4H8a4 4 0 014-4z"/></svg>
+        </span>
+        <p id="dash-analogia">Carregando comparação do dia a dia…</p>
+      </div>
+
+      <div class="card">
+        <h2>Dica rápida</h2>
+        <p id="dash-dica">–</p>
+      </div>
+    </section>
+
+    <!-- ===================== HISTÓRICO ===================== -->
+    <section id="painel-historico" role="tabpanel" aria-labelledby="tab-historico" tabindex="0" hidden>
+      <h1 class="page-title">Histórico de consumo</h1>
+      <p class="page-subtitle">Compare o mês selecionado com os meses anteriores.</p>
+
+      <div class="card">
+        <div class="historico-summary">
+          <div class="summary-item">Mês selecionado <strong id="hist-mes-atual">–</strong></div>
+          <div class="summary-item">Consumo no mês <strong id="hist-consumo-atual">–</strong></div>
+          <div class="summary-item">Média dos demais meses <strong id="hist-media">–</strong></div>
+          <div class="summary-item">Variação <strong id="hist-variacao">–</strong></div>
+        </div>
+
+        <div class="chart-container" id="hist-grafico"></div>
+
+        <div class="chart-legend">
+          <span class="legend-item"><span class="swatch" style="background:#2e7d32"></span> Normal</span>
+          <span class="legend-item"><span class="swatch" style="background:#b8860b"></span> Atenção</span>
+          <span class="legend-item"><span class="swatch" style="background:#c62828"></span> Alto</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== DECOMPOSIÇÃO DE USO ===================== -->
+    <section id="painel-decomposicao" role="tabpanel" aria-labelledby="tab-decomposicao" tabindex="0" hidden>
+      <h1 class="page-title">De onde vem o seu consumo?</h1>
+      <p class="page-subtitle">Mês de <span id="decomp-mes">–</span> · <span id="decomp-total">–</span></p>
+
+      <div class="card">
+        <ul class="usage-list" id="decomp-lista" aria-label="Consumo estimado por atividade doméstica"></ul>
+        <p class="decomposicao-note">
+          Estimativa baseada em referências típicas de consumo residencial — os valores reais podem variar
+          conforme os hábitos de cada residência.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== ALERTAS E DICAS ===================== -->
+    <section id="painel-alertas" role="tabpanel" aria-labelledby="tab-alertas" tabindex="0" hidden>
+      <h1 class="page-title">Alertas e dicas</h1>
+      <p class="page-subtitle">Mês de <span id="alertas-mes">–</span></p>
+      <div id="alertas-conteudo" aria-live="polite"></div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    Protótipo acadêmico — Trabalho Final de Interação Humano-Computador (IHC). Dados fictícios para fins didáticos.
+    Versão de arquivo único (HTML + CSS + JS embutidos).
+  </footer>
+
+  <script>
+(function () {
+  "use strict";
+
+  // ===================================================================
+  // DADOS (mockados)
+  // ===================================================================
+  var HISTORICO = [
+    { mes: "Fevereiro", ano: 2026, m3: 12.8, valor: 89.5, status: "normal" },
+    { mes: "Março",      ano: 2026, m3: 14.1, valor: 97.8, status: "normal" },
+    { mes: "Abril",      ano: 2026, m3: 13.9, valor: 96.0, status: "normal" },
+    { mes: "Maio",       ano: 2026, m3: 16.4, valor: 112.3, status: "atencao" },
+    { mes: "Junho",      ano: 2026, m3: 14.6, valor: 100.1, status: "normal" },
+    { mes: "Julho",      ano: 2026, m3: 23.8, valor: 156.4, status: "alto" }
+  ];
+  var INDICE_MES_ATUAL = HISTORICO.length - 1;
+
+  var DECOMPOSICAO_PERCENTUAL = [
+    { categoria: "Banho", percentual: 0.35, icone: "banho" },
+    { categoria: "Vaso sanitário", percentual: 0.20, icone: "vaso" },
+    { categoria: "Máquina de lavar roupa", percentual: 0.15, icone: "maquina" },
+    { categoria: "Cozinha e torneiras", percentual: 0.20, icone: "torneira" },
+    { categoria: "Outros usos", percentual: 0.10, icone: "outros" }
+  ];
+
+  var DICAS = {
+    normal: ["Seu consumo está dentro do esperado. Continue de olho para manter esse padrão."],
+    atencao: [
+      "Seu consumo subiu em relação aos meses anteriores. Verifique torneiras pingando e o tempo de banho.",
+      "Confira se alguma mangueira ou registro ficou aberto sem necessidade."
+    ],
+    alto: [
+      "Consumo bem acima do normal — isso pode indicar um vazamento. Verifique o vaso sanitário (teste do papel) e registros visíveis.",
+      "Se o consumo continuar alto mesmo sem uso extra de água, considere chamar um encanador."
+    ]
+  };
+
+  var STATUS_LABEL = { normal: "Normal", atencao: "Atenção", alto: "Alto" };
+
+  function mediaHistorica(excluirIndice) {
+    var soma = 0, contagem = 0;
+    HISTORICO.forEach(function (item, i) {
+      if (i !== excluirIndice) { soma += item.m3; contagem++; }
+    });
+    return contagem ? soma / contagem : 0;
+  }
+
+  function analogiaBanhos(m3) {
+    var litrosPorBanho = 80;
+    var litros = m3 * 1000;
+    return Math.round(litros / litrosPorBanho);
+  }
+
+  // ===================================================================
+  // ARMAZENAMENTO SEGURO (com fallback em memória)
+  // ===================================================================
+  var memoria = {};
+  var storage = {
+    getItem: function (chave) {
+      try { return window.localStorage.getItem(chave); }
+      catch (e) { return Object.prototype.hasOwnProperty.call(memoria, chave) ? memoria[chave] : null; }
+    },
+    setItem: function (chave, valor) {
+      try { window.localStorage.setItem(chave, valor); }
+      catch (e) { memoria[chave] = valor; }
+    }
+  };
+  var CHAVE_MES = "aguaConsciente_mesSelecionado";
+  var CHAVE_FONTE = "aguaConsciente_fontSize";
+
+  function getMesSelecionado() {
+    var salvo = storage.getItem(CHAVE_MES);
+    var indice = salvo !== null ? parseInt(salvo, 10) : INDICE_MES_ATUAL;
+    if (isNaN(indice) || indice < 0 || indice >= HISTORICO.length) indice = INDICE_MES_ATUAL;
+    return indice;
+  }
+  function setMesSelecionado(indice) { storage.setItem(CHAVE_MES, String(indice)); }
+
+  // ===================================================================
+  // ÍCONES SVG INLINE
+  // ===================================================================
+  var ICONS = {
+    gota: '<svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Gota de água"><path d="M12 2C8 8 4 12.5 4 16a8 8 0 0016 0c0-3.5-4-8-8-14z"/></svg>',
+    banho: '<svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Chuveiro"><path d="M7 3a1 1 0 000 2h1v1.1A6 6 0 003 12h1.8a1 1 0 010 2H3a1 1 0 000 2h1.09A6.99 6.99 0 0011 21.9V22a1 1 0 002 0v-.09A7 7 0 0019.9 16H21a1 1 0 000-2h-1.8a1 1 0 010-2H21a6 6 0 00-5-5.9V6h1a1 1 0 000-2H7zm5 5a4 4 0 014 4H8a4 4 0 014-4z"/></svg>',
+    vaso: '<svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Vaso sanitário"><path d="M7 2h6a2 2 0 012 2v2h1a1 1 0 011 1v3a5 5 0 01-4 4.9V17h1a1 1 0 010 2h-1v2a1 1 0 01-1 1H8a1 1 0 01-1-1v-2H6a1 1 0 010-2h1v-2.1A5 5 0 013 10V7a1 1 0 011-1h1V4a2 2 0 012-2z"/></svg>',
+    maquina: '<svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Máquina de lavar"><path d="M5 2h14a2 2 0 012 2v16a2 2 0 01-2 2H5a2 2 0 01-2-2V4a2 2 0 012-2zm2 2v2h2V4H7zm5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z"/></svg>',
+    torneira: '<svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Torneira"><path d="M4 4h6a1 1 0 011 1v3h6a3 3 0 013 3v1a1 1 0 01-2 0v-1a1 1 0 00-1-1h-6v2a5 5 0 01-10 0V8H4a1 1 0 01-1-1V5a1 1 0 011-1zm4 8v1a3 3 0 006 0v-1H8z"/></svg>',
+    outros: '<svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Outros usos"><path d="M12 2l2.4 4.9L20 8l-4 4 1 5.5L12 15l-5 2.5L8 12 4 8l5.6-1.1L12 2z"/></svg>',
+    alerta: '<svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Alerta"><path d="M12 2L1 21h22L12 2zm0 6a1 1 0 011 1v5a1 1 0 01-2 0V9a1 1 0 011-1zm0 8.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5z"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Tudo certo"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>'
+  };
+  function icon(name, cssClass) {
+    var svg = ICONS[name] || "";
+    if (cssClass) svg = svg.replace("<svg ", '<svg class="' + cssClass + '" ');
+    return svg;
+  }
+  function statusBadgeHTML(status) {
+    var label = STATUS_LABEL[status] || status;
+    return '<span class="status-badge status-' + status + '"><span class="dot" aria-hidden="true"></span>' + label + "</span>";
+  }
+
+  // ===================================================================
+  // GRÁFICO DE BARRAS (SVG puro)
+  // ===================================================================
+  var CORES_STATUS = { normal: "#2e7d32", atencao: "#b8860b", alto: "#c62828" };
+  var NS = "http://www.w3.org/2000/svg";
+  function criarEl(tag, attrs) {
+    var el = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+    return el;
+  }
+  function renderBarChart(containerId, historico, indiceSelecionado) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = "";
+    var largura = 640, altura = 260;
+    var margemEsq = 40, margemBaixo = 36, margemTopo = 16, margemDir = 12;
+    var areaLargura = largura - margemEsq - margemDir;
+    var areaAltura = altura - margemTopo - margemBaixo;
+    var maxValor = Math.max.apply(null, historico.map(function (h) { return h.m3; })) * 1.15;
+    var larguraBarra = areaLargura / historico.length * 0.6;
+    var passo = areaLargura / historico.length;
+    var resumoTexto = historico.map(function (h) { return h.mes + ": " + h.m3.toFixed(1) + " m³ (" + h.status + ")"; }).join("; ");
+    var svg = criarEl("svg", { viewBox: "0 0 " + largura + " " + altura, role: "img", "aria-label": "Gráfico de consumo mensal em metros cúbicos. " + resumoTexto });
+    var desc = criarEl("desc", {});
+    desc.textContent = resumoTexto;
+    svg.appendChild(desc);
+    svg.appendChild(criarEl("line", { x1: margemEsq, y1: altura - margemBaixo, x2: largura - margemDir, y2: altura - margemBaixo, stroke: "#c7d8e0", "stroke-width": 1 }));
+    historico.forEach(function (item, i) {
+      var alturaBarra = (item.m3 / maxValor) * areaAltura;
+      var x = margemEsq + i * passo + (passo - larguraBarra) / 2;
+      var y = altura - margemBaixo - alturaBarra;
+      var cor = CORES_STATUS[item.status] || "#0277bd";
+      var emDestaque = i === indiceSelecionado;
+      var rect = criarEl("rect", { x: x, y: y, width: larguraBarra, height: alturaBarra, rx: 4, fill: cor, opacity: emDestaque ? 1 : 0.55 });
+      var title = criarEl("title", {});
+      title.textContent = item.mes + "/" + item.ano + ": " + item.m3.toFixed(1) + " m³ — status " + item.status;
+      rect.appendChild(title);
+      svg.appendChild(rect);
+      var textoValor = criarEl("text", { x: x + larguraBarra / 2, y: y - 6, "text-anchor": "middle", "font-size": "11", fill: "#4c626b" });
+      textoValor.textContent = item.m3.toFixed(1);
+      svg.appendChild(textoValor);
+      var textoMes = criarEl("text", { x: x + larguraBarra / 2, y: altura - margemBaixo + 16, "text-anchor": "middle", "font-size": "11", fill: emDestaque ? "#0277bd" : "#4c626b", "font-weight": emDestaque ? "700" : "400" });
+      textoMes.textContent = item.mes.slice(0, 3);
+      svg.appendChild(textoMes);
+    });
+    container.appendChild(svg);
+  }
+
+  // ===================================================================
+  // RENDERIZAÇÃO DAS 4 SEÇÕES (SPA)
+  // ===================================================================
+  function renderDashboard(indice) {
+    var mes = HISTORICO[indice];
+    var media = mediaHistorica(indice);
+    var variacao = ((mes.m3 - media) / media) * 100;
+    var banhos = analogiaBanhos(mes.m3);
+    document.getElementById("dash-mes").textContent = mes.mes + "/" + mes.ano;
+    document.getElementById("dash-m3").textContent = mes.m3.toFixed(1) + " m³";
+    document.getElementById("dash-reais").textContent = mes.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    document.getElementById("dash-status").innerHTML = statusBadgeHTML(mes.status);
+    var sinal = variacao >= 0 ? "+" : "";
+    document.getElementById("dash-variacao").textContent = sinal + variacao.toFixed(0) + "% em relação à média dos outros meses (" + media.toFixed(1) + " m³)";
+    document.getElementById("dash-analogia").textContent = "Isso equivale a cerca de " + banhos + " banhos de 10 minutos neste mês.";
+    document.getElementById("dash-dica").textContent = DICAS[mes.status][0];
+    document.getElementById("dash-link-alertas").style.display = mes.status === "normal" ? "none" : "inline-block";
+  }
+
+  function renderHistorico(indice) {
+    var mes = HISTORICO[indice];
+    var media = mediaHistorica(indice);
+    var variacao = ((mes.m3 - media) / media) * 100;
+    document.getElementById("hist-mes-atual").textContent = mes.mes + "/" + mes.ano;
+    document.getElementById("hist-consumo-atual").textContent = mes.m3.toFixed(1) + " m³";
+    document.getElementById("hist-media").textContent = media.toFixed(1) + " m³";
+    var sinal = variacao >= 0 ? "+" : "";
+    var elVariacao = document.getElementById("hist-variacao");
+    elVariacao.textContent = sinal + variacao.toFixed(0) + "%";
+    elVariacao.style.color = variacao > 10 ? "#c62828" : (variacao > 0 ? "#b8860b" : "#2e7d32");
+    renderBarChart("hist-grafico", HISTORICO, indice);
+  }
+
+  function renderDecomposicao(indice) {
+    var mes = HISTORICO[indice];
+    document.getElementById("decomp-mes").textContent = mes.mes + "/" + mes.ano;
+    document.getElementById("decomp-total").textContent = mes.m3.toFixed(1) + " m³ no total";
+    var lista = document.getElementById("decomp-lista");
+    lista.innerHTML = "";
+    DECOMPOSICAO_PERCENTUAL.forEach(function (item) {
+      var valorM3 = mes.m3 * item.percentual;
+      var li = document.createElement("li");
+      li.className = "usage-item";
+      li.innerHTML =
+        '<div class="usage-item__head"><span>' + icon(item.icone, "icon-inline") + " " + item.categoria + "</span>" +
+        "<span>" + valorM3.toFixed(1) + " m³ (" + Math.round(item.percentual * 100) + "%)</span></div>" +
+        '<div class="usage-item__track"><div class="usage-item__fill" style="width:' + (item.percentual * 100) + '%"></div></div>';
+      lista.appendChild(li);
+    });
+  }
+
+  function renderAlertas(indice) {
+    var mes = HISTORICO[indice];
+    document.getElementById("alertas-mes").textContent = mes.mes + "/" + mes.ano;
+    var container = document.getElementById("alertas-conteudo");
+    container.innerHTML = "";
+    if (mes.status === "normal") {
+      container.innerHTML = '<div class="alertas-empty">' + icon("check", "icon-inline") +
+        "<p><strong>Nenhum alerta para este mês.</strong></p><p>" + DICAS.normal[0] + "</p></div>";
+      return;
+    }
+    var dicas = DICAS[mes.status];
+    var classeTip = mes.status === "alto" ? "tip-alerta" : "tip-atencao";
+    var html = '<div class="card alert-card">' + icon("alerta", "icon-inline") + "<div>" +
+      "<h3>" + STATUS_LABEL[mes.status] + ": consumo " + mes.m3.toFixed(1) + " m³ em " + mes.mes + "</h3>" +
+      "<p>" + (mes.status === "alto" ? "Este valor está bem acima do seu padrão habitual, o que pode indicar um vazamento." : "Este valor está um pouco acima do seu padrão habitual.") +
+      "</p></div></div>";
+    dicas.forEach(function (dica) {
+      html += '<div class="tip-box ' + classeTip + '">' + icon("gota", "icon-inline") + "<p>" + dica + "</p></div>";
+    });
+    container.innerHTML = html;
+  }
+
+  function renderAll(indice) {
+    renderDashboard(indice);
+    renderHistorico(indice);
+    renderDecomposicao(indice);
+    renderAlertas(indice);
+  }
+
+  // ===================================================================
+  // SELETOR DE MÊS E TAMANHO DE FONTE (compartilhados no cabeçalho)
+  // ===================================================================
+  function initMonthSelector() {
+    var select = document.getElementById("seletor-mes");
+    select.innerHTML = "";
+    HISTORICO.forEach(function (item, i) {
+      var opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = item.mes + "/" + item.ano + (i === INDICE_MES_ATUAL ? " (mês atual)" : "");
+      select.appendChild(opt);
+    });
+    select.value = String(getMesSelecionado());
+    select.addEventListener("change", function () {
+      var indice = parseInt(select.value, 10);
+      setMesSelecionado(indice);
+      renderAll(indice);
+    });
+  }
+
+  var TAMANHOS_FONTE = ["normal", "font-lg", "font-xl"];
+  var TAMANHOS_LABEL = { normal: "A", "font-lg": "A+", "font-xl": "A++" };
+  function aplicarTamanhoFonte(tamanho) {
+    document.documentElement.classList.remove("font-lg", "font-xl");
+    if (tamanho !== "normal") document.documentElement.classList.add(tamanho);
+  }
+  function initFontSizeControl() {
+    var botao = document.getElementById("botao-fonte");
+    var atual = storage.getItem(CHAVE_FONTE) || "normal";
+    aplicarTamanhoFonte(atual);
+    botao.textContent = "Tamanho do texto: " + TAMANHOS_LABEL[atual];
+    botao.setAttribute("aria-pressed", atual !== "normal" ? "true" : "false");
+    botao.addEventListener("click", function () {
+      var idxAtual = TAMANHOS_FONTE.indexOf(atual);
+      atual = TAMANHOS_FONTE[(idxAtual + 1) % TAMANHOS_FONTE.length];
+      storage.setItem(CHAVE_FONTE, atual);
+      aplicarTamanhoFonte(atual);
+      botao.textContent = "Tamanho do texto: " + TAMANHOS_LABEL[atual];
+      botao.setAttribute("aria-pressed", atual !== "normal" ? "true" : "false");
+    });
+  }
+
+  // ===================================================================
+  // NAVEGAÇÃO POR ABAS (padrão ARIA tabs, com setas do teclado)
+  // ===================================================================
+  var VIEWS = ["dashboard", "historico", "decomposicao", "alertas"];
+
+  function showView(viewName, moveFocus) {
+    VIEWS.forEach(function (v) {
+      var tab = document.getElementById("tab-" + v);
+      var panel = document.getElementById("painel-" + v);
+      var ativo = v === viewName;
+      tab.setAttribute("aria-selected", ativo ? "true" : "false");
+      tab.tabIndex = ativo ? 0 : -1;
+      if (ativo) {
+        panel.removeAttribute("hidden");
+        if (moveFocus) panel.focus();
+      } else {
+        panel.setAttribute("hidden", "");
+      }
+    });
+  }
+
+  function initTabs() {
+    VIEWS.forEach(function (v, i) {
+      var tab = document.getElementById("tab-" + v);
+      tab.addEventListener("click", function () { showView(v, false); });
+      tab.addEventListener("keydown", function (ev) {
+        var idx = VIEWS.indexOf(v);
+        var novoIdx = null;
+        if (ev.key === "ArrowRight") novoIdx = (idx + 1) % VIEWS.length;
+        else if (ev.key === "ArrowLeft") novoIdx = (idx - 1 + VIEWS.length) % VIEWS.length;
+        else if (ev.key === "Home") novoIdx = 0;
+        else if (ev.key === "End") novoIdx = VIEWS.length - 1;
+        if (novoIdx !== null) {
+          ev.preventDefault();
+          var novoTab = document.getElementById("tab-" + VIEWS[novoIdx]);
+          showView(VIEWS[novoIdx], false);
+          novoTab.focus();
+        }
+      });
+    });
+  }
+
+  // ===================================================================
+  // INICIALIZAÇÃO
+  // ===================================================================
+  document.addEventListener("DOMContentLoaded", function () {
+    initFontSizeControl();
+    initMonthSelector();
+    initTabs();
+    var indiceInicial = getMesSelecionado();
+    renderAll(indiceInicial);
+    showView("dashboard", false);
+  });
+})();
+  </script>
+</body>
+</html>
